@@ -1,0 +1,51 @@
+body,
+html,
+#root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(52, 53, 57);
+    color: aliceblue;
+}
+
+.election-container {
+    height: 100vh;
+    width: 100vw;
+    background-color: rgb(62, 61, 64);
+}
+
+.election-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 60px;
+    background-color: rgb(29, 31, 25);
+    border-radius: 50px;
+    border: 2px solid rgb(91, 92, 97);
+    padding: 50px;
+    margin: 5%;
+    box-shadow: 5px 5px 10px rgba;
+}
+
+.topic {
+    color: white;
+    margin: 5%;
+    font-size: 2rem;
+}
+
+.upload-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 60px;
+    margin: 50px;
+    gap: 20px;
+    background-color: rgb(29, 31, 25);
+    border-radius: 50px;
+    border: 2px solid rgb(91, 92, 97);
+    padding: 50px;
+    margin: 5%;
+    box-shadow: 5px 5px 10px rgba;
+}
