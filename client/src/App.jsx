@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import candidateList from './data/candidates-2024-presidental.json';
 import './styles.css'
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:5001')  
+    const ws = new WebSocket('ws://localhost:5001')
     setSocket(ws)
 
     ws.addEventListener("open", (event) => {
@@ -22,7 +23,7 @@ function App() {
         if (Array.isArray(incoming)) {
           setResults(incoming)  // initial History
         } else {
-          setResults(prev => [incoming, ...prev]) 
+          setResults(prev => [incoming, ...prev])
         }
       } catch (error) {
         console.warn("Invalid message from server:", event.data)
@@ -38,6 +39,60 @@ function App() {
       ws?.close()
     }
   }, [])
+
+  const candidateMap = {};
+  candidateList.forEach(candidate => {
+    candidateMap[candidate.id] = candidate
+  })
+
+  const districtTotals = {};
+
+  results.forEach(file => {
+    // check only these levels
+    if (file.level === "ELECTORAL-DISTRICT" || file.level === "POLLING-DIVISION") {
+      const key = file.ed_code + "-" + file.ed_name;
+
+      // create empty district if not exists
+      if (!districtTotals[key]) {
+        districtTotals[key] = {};
+      }
+
+      // add votes per party
+      file.by_party.forEach(party => {
+        if (!districtTotals[key][party.party_code]) {
+          districtTotals[key][party.party_code] = 0;
+        }
+        districtTotals[key][party.party_code] += party.votes;
+      });
+    }
+  });
+
+  const islandTotal = {};
+
+  results.forEach(file => {
+    if (file.level === "ELECTORAL-DISTRICT") {
+      file.by_party.forEach(party => {
+        if (!islandTotal[party.party_code]) {
+          islandTotal[party.party_code] = 0; // first time
+        }
+        islandTotal[party.party_code] += party.votes; // add votes
+      });
+    }
+  });
+
+  const sortedDistricts = Object.entries(districtTotals).map(([district, parties]) => {
+    return {
+      district,
+      parties: Object.entries(parties)
+        .map(([party, votes]) => ({ party, votes }))
+        .sort((a, b) => b.votes - a.votes) // highest first
+    };
+  });
+
+  // Sort island total
+  const sortedIsland = Object.entries(islandTotal)
+    .map(([party, votes]) => ({ party, votes }))
+    .sort((a, b) => b.votes - a.votes);
 
   return (
     <>
@@ -75,6 +130,55 @@ function App() {
           </table>
         )}
       </div>
+
+      <div>
+        <h2>Island Total</h2>
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Party</th>
+              <th>Total Votes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedIsland.map((p, i) => (
+              <tr key={i}>
+                <td>{p.party}</td>
+                <td>{p.votes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+
+
+      <div>
+        <h2>District Totals</h2>
+        {sortedDistricts.map((dist, idx) => (
+          <div key={idx}>
+            <h3>{dist.district}</h3>
+            <table className="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Party</th>
+                  <th>Votes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dist.parties.map((p, i) => (
+                  <tr key={i}>
+                    <td>{p.party}</td>
+                    <td>{p.votes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+
+
 
       <div className='full-data'>
         <h2>Full Data</h2>
