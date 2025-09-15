@@ -73,9 +73,9 @@ function App() {
     if (file.level === "ELECTORAL-DISTRICT") {
       file.by_party.forEach(party => {
         if (!islandTotal[party.party_code]) {
-          islandTotal[party.party_code] = 0; // first time
+          islandTotal[party.party_code] = 0; 
         }
-        islandTotal[party.party_code] += party.votes; // add votes
+        islandTotal[party.party_code] += party.votes;
       });
     }
   });
@@ -85,7 +85,7 @@ function App() {
       district,
       parties: Object.entries(parties)
         .map(([party, votes]) => ({ party, votes }))
-        .sort((a, b) => b.votes - a.votes) // highest first
+        .sort((a, b) => b.votes - a.votes) // rank
     };
   });
 
