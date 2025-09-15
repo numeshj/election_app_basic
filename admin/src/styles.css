@@ -9,9 +9,13 @@ html,
 }
 
 .election-container {
-    height: 100vh;
+    height: 350px;
     width: 100vw;
     background-color: rgb(62, 61, 64);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
 }
 
 .election-header {
@@ -26,12 +30,15 @@ html,
     padding: 50px;
     margin: 5%;
     box-shadow: 5px 5px 10px rgba;
+    margin-bottom: 20px;
 }
 
 .topic {
     color: white;
     margin: 5%;
     font-size: 2rem;
+    color: #333;
+    font-size: 2em;
 }
 
 .upload-container {
@@ -48,4 +55,30 @@ html,
     padding: 50px;
     margin: 5%;
     box-shadow: 5px 5px 10px rgba;
+    margin-bottom: 20px;
+}
+
+.upload-container input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.summary-container {
+    margin-top: 40px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    display: block; /* Ensure it's visible */
+}
+
+.summary-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.summary-container p {
+    text-align: center;
+    font-size: 1.2em;
+    color: #666;
 }

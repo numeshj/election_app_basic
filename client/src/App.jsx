@@ -1,40 +1,32 @@
 import { useState, useEffect } from 'react'
-
+import './styles.css'
 
 function App() {
   const [results, setResults] = useState([])
   const [socket, setSocket] = useState(null)
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    // create the WebSocket connection
-    const ws = new WebSocket('ws://localhost:5002')
+    const ws = new WebSocket('ws://localhost:5001')  
     setSocket(ws)
 
-    // connection opened
     ws.addEventListener("open", (event) => {
       setIsConnected(true)
       console.log("WebSocket connected")
-      ws.send("Client : Hello Server!")
     })
 
-    //listen for message
     ws.addEventListener("message", (event) => {
-      try { 
+      try {
         const incoming = JSON.parse(event.data)
-        setResults(prev => [...prev, incoming])
-        console.log("Message from the server : ", event.data)
 
-      } catch {
-        console.log("Non-JSON message from the server : ", event.data)
+        if (Array.isArray(incoming)) {
+          setResults(incoming)  // initial History
+        } else {
+          setResults(prev => [incoming, ...prev]) 
+        }
+      } catch (error) {
+        console.warn("Invalid message from server:", event.data)
       }
-      
-    })
-
-    // Handle errors
-    ws.addEventListener("error", (error) => {
-      console.error("WebSocket error : ", error)
-      setIsConnected(false)
     })
 
     ws.addEventListener("close", (event) => {
@@ -43,9 +35,7 @@ function App() {
     })
 
     return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close()
-      }
+      ws?.close()
     }
   }, [])
 
@@ -59,11 +49,42 @@ function App() {
         {results.length === 0 ? (
           <p>No data received yet</p>
         ) : (
-            results.map((item, index) => (
-              <pre key={index}>{JSON.stringify(item, null, 2)}</pre>
-            ))
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>ED Code</th>
+                <th>ED Name</th>
+                <th>PD Code</th>
+                <th>PD Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.timestamp}</td>
+                  <td>{item.level}</td>
+                  <td>{item.ed_code}</td>
+                  <td>{item.ed_name}</td>
+                  <td>{item.pd_code}</td>
+                  <td>{item.pd_name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
+      </div>
 
+      <div className='full-data'>
+        <h2>Full Data</h2>
+        {results.length === 0 ? (
+          <p>No data received yet</p>
+        ) : (
+          results.map((item, index) => (
+            <pre key={index}>{JSON.stringify(item, null, 2)}</pre>
+          ))
+        )}
       </div>
     </>
   )
