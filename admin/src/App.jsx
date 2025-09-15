@@ -16,7 +16,7 @@ function App() {
     ws.addEventListener("open", (event) => {
       setIsConnected(true)
       console.log("WebSocket connected")
-      ws.send("Hello Server!")
+      ws.send("Admin : Hello Server!")
     })
 
     //listen for message

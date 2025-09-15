@@ -14,7 +14,13 @@ wss.on("connection", (ws) => {
           const data = JSON.parse(message);
           console.log("Received JSON : ", data)
 
-          ws.send("JSON received by server")
+          // send to all clients
+          wss.clients.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify(data));
+              }
+          })
+          
       } catch (error) {
           console.log("received non-JSON : ", message.toString())
           ws.send("Invalid JSON format")
