@@ -1,22 +1,24 @@
-import { useState, useEffect } from 'react'
-import candidateList from './data/candidates-2024-presidental.json';
+import { useState, useEffect, useRef } from 'react'
+// import candidateList from './data/candidates-2024-presidental.json'; 
 import './styles.css'
 
 function App() {
   const [results, setResults] = useState([])
-  const [socket, setSocket] = useState(null)
+  // const [socket, setSocket] = useState(null)
+  const ws = useRef(null)
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:5001')
-    setSocket(ws)
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) return
 
-    ws.addEventListener("open", (event) => {
+    ws.current = new WebSocket('ws://localhost:5001')
+
+    ws.current.addEventListener("open", (event) => {
       setIsConnected(true)
       console.log("WebSocket connected")
     })
 
-    ws.addEventListener("message", (event) => {
+    ws.current.addEventListener("message", (event) => {
       try {
         const incoming = JSON.parse(event.data)
 
@@ -30,69 +32,76 @@ function App() {
       }
     })
 
-    ws.addEventListener("close", (event) => {
+    ws.current.addEventListener("close", (event) => {
       console.log("WebSocket disconnected")
       setIsConnected(false)
     })
 
     return () => {
-      ws?.close()
+      ws.current?.close()
     }
   }, [])
 
-  const candidateMap = {};
-  candidateList.forEach(candidate => {
-    candidateMap[candidate.id] = candidate
-  })
+  // const candidateMap = {};
+  // candidateList.forEach(candidate => {
+  //   candidateMap[candidate.id] = candidate
+  // })
 
+  const islandTotal = {};
   const districtTotals = {};
 
   results.forEach(file => {
-    // check only these levels
-    if (file.level === "ELECTORAL-DISTRICT" || file.level === "POLLING-DIVISION") {
-      const key = file.ed_code + "-" + file.ed_name;
+    const key = file.ed_code + "-" + file.ed_name;
 
-      // create empty district if not exists
-      if (!districtTotals[key]) {
-        districtTotals[key] = {};
-      }
-
-      // add votes per party
-      file.by_party.forEach(party => {
-        if (!districtTotals[key][party.party_code]) {
-          districtTotals[key][party.party_code] = 0;
-        }
-        districtTotals[key][party.party_code] += party.votes;
-      });
+    if (!districtTotals[key]) {
+      districtTotals[key] = { hasDistrictTotal: false, votes: {} };
     }
-  });
 
-  const islandTotal = {};
-
-  results.forEach(file => {
+    // If it ELECTORAL-DISTRICT, marking as final total
     if (file.level === "ELECTORAL-DISTRICT") {
+      districtTotals[key].hasDistrictTotal = true;
+      districtTotals[key].votes = {}; // reset before adding
       file.by_party.forEach(party => {
-        if (!islandTotal[party.party_code]) {
-          islandTotal[party.party_code] = 0; 
+        districtTotals[key].votes[party.party_code] = party.votes;
+      });
+    }
+    // only add if ELECTORAL-DISTRICT hasn't received
+    else if (!districtTotals[key].hasDistrictTotal) {
+      file.by_party.forEach(party => {
+        if (!districtTotals[key].votes[party.party_code]) {
+          districtTotals[key].votes[party.party_code] = 0;
         }
-        islandTotal[party.party_code] += party.votes;
+        districtTotals[key].votes[party.party_code] += party.votes;
       });
     }
   });
 
-  const sortedDistricts = Object.entries(districtTotals).map(([district, parties]) => {
-    return {
-      district,
-      parties: Object.entries(parties)
-        .map(([party, votes]) => ({ party, votes }))
-        .sort((a, b) => b.votes - a.votes) // rank
-    };
+
+  // Calculate island total from final district totals
+  Object.values(districtTotals).forEach(district => {
+    Object.entries(district.votes).forEach(([party, votes]) => {
+      if (!islandTotal[party]) {
+        islandTotal[party] = 0;
+      }
+      islandTotal[party] += votes;
+    });
   });
+
 
   // Sort island total
   const sortedIsland = Object.entries(islandTotal)
     .map(([party, votes]) => ({ party, votes }))
     .sort((a, b) => b.votes - a.votes);
+
+  // Sort dstric total
+  const sortedDistricts = Object.entries(districtTotals).map(([key, data]) => {
+    return {
+      district: key,
+      parties: Object.entries(data.votes)
+        .map(([party, votes]) => ({ party, votes }))
+        .sort((a, b) => b.votes - a.votes)
+    };
+  });
 
   return (
     <>
