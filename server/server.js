@@ -18,11 +18,14 @@ wss.on("connection", (ws) => {
     try {
       const data = JSON.parse(message);
 
+      // Add upload timestamp
+      data.timestamp = new Date().toISOString();
+
       // Save full data in server memory
       fullData.push(data);
       console.log("Data stored on server:", data);
 
-      // send full data to all connected clients
+      // Broadcast full data to all connected clients
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify(data));

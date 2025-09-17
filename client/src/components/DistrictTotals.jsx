@@ -1,6 +1,8 @@
+import './DistrictTotals.css';
+
 export function DistrictTotals({ sortedDistricts }) {
     return (
-        <div>
+        <div className="district-totals">
             <h2>District Totals</h2>
             {sortedDistricts.map((dist, idx) => (
                 <div key={idx}>

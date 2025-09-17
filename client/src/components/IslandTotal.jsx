@@ -1,6 +1,8 @@
+import './IslandTotal.css';
+
 export function IslandTotal({ sortedIsland }) {
     return (
-        <div>
+        <div className="island-total">
             <h2>Island Total</h2>
             <table className="table table-striped table-hover">
                 <thead>

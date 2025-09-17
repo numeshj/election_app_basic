@@ -1,0 +1,64 @@
+/* filepath: d:\Arimac\React Assignments\election_app_basics\client\src\components\DistrictTotals.css */
+
+.district-totals {
+  margin-bottom: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.district-totals h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.district-totals table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.district-totals th,
+.district-totals td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.district-totals th {
+  background: #3498db;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.district-totals tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.district-totals tr:hover {
+  background: #e9ecef;
+  transition: background 0.3s ease;
+}
+
+.district-totals h3 {
+  color: #34495e;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .district-totals th,
+  .district-totals td {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+}
